@@ -214,14 +214,30 @@ class Visualizer:
             plotly.graph_objects.Figure: The interactive figure
         """
         try:
-            # Prepare data for sunburst chart with explicit conversion
-            pet_type_data = self.combined_df.groupby(['location', 'animal_type', 'status']).size().reset_index(name='count')
+            # Alternative approach: Create data manually to avoid pandas compatibility issues
+            # Get unique combinations and their counts
+            location_animal_status = []
+            for _, row in self.combined_df.iterrows():
+                location_animal_status.append((row['location'], row['animal_type'], row['status']))
             
-            # Convert to regular DataFrame to avoid pandas compatibility issues
-            pet_type_data = pd.DataFrame(pet_type_data)
+            # Count occurrences manually
+            from collections import Counter
+            counts = Counter(location_animal_status)
             
-            # Filter out any NaN values that might cause issues
-            pet_type_data = pet_type_data.dropna()
+            # Convert to DataFrame format that plotly expects
+            data_for_plot = []
+            for (location, animal_type, status), count in counts.items():
+                data_for_plot.append({
+                    'location': location,
+                    'animal_type': animal_type,
+                    'status': status,
+                    'count': count
+                })
+            
+            pet_type_data = pd.DataFrame(data_for_plot)
+            
+            if pet_type_data.empty:
+                raise ValueError("No data available for sunburst chart")
             
             fig = px.sunburst(
                 pet_type_data,
@@ -232,8 +248,7 @@ class Visualizer:
             return fig
             
         except Exception as e:
-            print(f"Sunburst chart error: {str(e)}")
-            
+            print(f"Sunburst chart failed: {str(e)}")
             # Alternative: Bar chart with explicit DataFrame conversion
             bar_data = self.combined_df.groupby(['location', 'animal_type']).size().reset_index(name='count')
             bar_data = pd.DataFrame(bar_data)
@@ -318,16 +333,37 @@ class Visualizer:
             plotly.graph_objects.Figure: The interactive figure
         """
         try:
-            # Prepare breed data with proper aggregation and explicit conversion
-            breed_analysis = self.combined_df.groupby(['animal_breed', 'location']).size().reset_index(name='count')
+            # Alternative approach: Create breed data manually to avoid pandas compatibility issues
+            # Get unique breed-location combinations and their counts
+            breed_location = []
+            for _, row in self.combined_df.iterrows():
+                breed_location.append((row['animal_breed'], row['location']))
             
-            # Convert to regular DataFrame to avoid pandas compatibility issues
-            breed_analysis = pd.DataFrame(breed_analysis)
-            breed_analysis = breed_analysis.dropna()
+            # Count occurrences manually
+            from collections import Counter
+            counts = Counter(breed_location)
+            
+            # Convert to DataFrame format that plotly expects
+            data_for_plot = []
+            for (breed, location), count in counts.items():
+                data_for_plot.append({
+                    'animal_breed': breed,
+                    'location': location,
+                    'count': count
+                })
+            
+            breed_analysis = pd.DataFrame(data_for_plot)
             
             # Filter to top breeds for better visualization
-            top_breeds = self.combined_df['animal_breed'].value_counts().head(20).index
-            breed_analysis_filtered = breed_analysis[breed_analysis['animal_breed'].isin(top_breeds)]
+            breed_counts = {}
+            for _, row in self.combined_df.iterrows():
+                breed = row['animal_breed']
+                breed_counts[breed] = breed_counts.get(breed, 0) + 1
+            
+            top_breeds = sorted(breed_counts.items(), key=lambda x: x[1], reverse=True)[:20]
+            top_breed_names = [breed for breed, _ in top_breeds]
+            
+            breed_analysis_filtered = breed_analysis[breed_analysis['animal_breed'].isin(top_breed_names)]
             
             fig = px.treemap(
                 breed_analysis_filtered,
@@ -338,9 +374,6 @@ class Visualizer:
             return fig
             
         except Exception as e:
-            print(f"Treemap error: {str(e)}")
-            print("Creating alternative visualization...")
-            
             # Alternative: Bar chart for top breeds with explicit DataFrame conversion
             top_breeds = self.combined_df['animal_breed'].value_counts().head(20).index
             top_breeds_data = self.combined_df[self.combined_df['animal_breed'].isin(top_breeds)]
