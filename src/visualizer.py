@@ -206,62 +206,64 @@ class Visualizer:
             print(f"Error creating pet type distribution chart: {str(e)}")
             return None
     
-    def create_interactive_pet_type_sunburst_chart(self):
+    def create_interactive_pet_type_distribution_chart(self):
         """
-        Create interactive pet type analysis with Plotly.
+        Create interactive pet type distribution analysis with Plotly.
         
         Returns:
             plotly.graph_objects.Figure: The interactive figure
         """
         try:
-            # Alternative approach: Create data manually to avoid pandas compatibility issues
-            # Get unique combinations and their counts
-            location_animal_status = []
+            # Create data manually to avoid pandas compatibility issues
+            location_animal_counts = {}
             for _, row in self.combined_df.iterrows():
-                location_animal_status.append((row['location'], row['animal_type'], row['status']))
+                location = row['location']
+                animal_type = row['animal_type']
+                key = (location, animal_type)
+                location_animal_counts[key] = location_animal_counts.get(key, 0) + 1
             
-            # Count occurrences manually
-            from collections import Counter
-            counts = Counter(location_animal_status)
-            
-            # Convert to DataFrame format that plotly expects
+            # Convert to DataFrame format
             data_for_plot = []
-            for (location, animal_type, status), count in counts.items():
+            for (location, animal_type), count in location_animal_counts.items():
                 data_for_plot.append({
                     'location': location,
                     'animal_type': animal_type,
-                    'status': status,
                     'count': count
                 })
             
             pet_type_data = pd.DataFrame(data_for_plot)
             
-            if pet_type_data.empty:
-                raise ValueError("No data available for sunburst chart")
-            
-            fig = px.sunburst(
-                pet_type_data,
-                path=['location', 'animal_type', 'status'],
-                values='count',
-                title='Interactive Pet Type Analysis by Location and Status - Hierarchical breakdown of pet distribution'
-            )
-            return fig
-            
-        except Exception as e:
-            print(f"Sunburst chart failed: {str(e)}")
-            # Alternative: Bar chart with explicit DataFrame conversion
-            bar_data = self.combined_df.groupby(['location', 'animal_type']).size().reset_index(name='count')
-            bar_data = pd.DataFrame(bar_data)
-            bar_data = bar_data.dropna()
-            
+            # Create interactive bar chart
             fig = px.bar(
-                bar_data,
+                pet_type_data,
                 x='location',
                 y='count',
                 color='animal_type',
-                title='Pet Type Distribution by Location'
+                title='Pet Type Distribution by Location - Interactive Analysis',
+                labels={'count': 'Number of Animals', 'location': 'Location', 'animal_type': 'Animal Type'},
+                barmode='stack'
             )
+            
+            # Update layout for better appearance
+            fig.update_layout(
+                title_x=0.5,
+                title_font_size=16,
+                height=600,
+                showlegend=True,
+                legend=dict(
+                    orientation="v",
+                    yanchor="top",
+                    y=1,
+                    xanchor="left",
+                    x=1.02
+                )
+            )
+            
             return fig
+            
+        except Exception as e:
+            print(f"Pet type distribution chart failed: {str(e)}")
+            return None
     
     def create_interactive_age_gender_scatter_plot(self):
         """
@@ -588,16 +590,19 @@ class Visualizer:
                 },
                 xaxis_title="Animal Type",
                 yaxis_title="Average Adoption Fee ($)",
+                height=500,
+                margin=dict(t=100, b=80, l=80, r=80),
                 annotations=[
                     dict(
-                        text=f"Total Animals with Fees: {len(fee_df)}<br>Overall Average: ${avg_fee:.2f}<br>Fee Range: ${fee_df['fee'].min()}-${fee_df['fee'].max()}",
+                        text=f"Total Animals: {len(fee_df)} | Avg: ${avg_fee:.2f} | Range: ${fee_df['fee'].min()}-${fee_df['fee'].max()}",
                         showarrow=False,
                         xref="paper", yref="paper",
-                        x=0.02, y=0.02,
-                        xanchor='left', yanchor='bottom',
-                        bgcolor="rgba(255,255,255,0.8)",
+                        x=0.5, y=0.95,
+                        xanchor='center', yanchor='top',
+                        bgcolor="rgba(255,255,255,0.9)",
                         bordercolor="black",
-                        borderwidth=1
+                        borderwidth=1,
+                        font=dict(size=10)
                     )
                 ]
             )
