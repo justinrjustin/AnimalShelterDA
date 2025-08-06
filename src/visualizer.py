@@ -538,20 +538,20 @@ class Visualizer:
         # Extract adoption fees from Memo column
         adoption_fee_data = []
         
-        # Check available columns for debugging
-        available_columns = list(king_county_data.columns)
+
         
         for idx, row in king_county_data.iterrows():
             # Check Memo column for adoption fee information
             memo = str(row.get('memo', '')).lower()
+            
             if 'adoption fee' in memo:
                 # Extract animal type
                 animal_type = row.get('animal_type', 'Unknown')
                 
-                # Try to extract fee amount (look for $XX or XX dollars)
-                fee_match = re.search(r'\$(\d+)', memo)
+                # Try to extract fee amount (look for $XX.XX format)
+                fee_match = re.search(r'\$(\d+(?:\.\d{2})?)', memo)
                 if fee_match:
-                    fee_amount = int(fee_match.group(1))
+                    fee_amount = float(fee_match.group(1))
                     adoption_fee_data.append({
                         'animal_type': animal_type,
                         'fee': fee_amount,
