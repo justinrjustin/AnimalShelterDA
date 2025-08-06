@@ -1,13 +1,5 @@
 # Adoptable Pets Data Analysis Project
 
-**Professional Data Analyst Portfolio Project** - Demonstrating enterprise-level data analysis skills
-
-## Project Overview
-
-This project demonstrates **professional data analysis** using a **modular architecture** that separates logic from visualization.
-
-### Professional Architecture
-
 ```
 AdoptablePetsDA/
 ├── data/
@@ -60,27 +52,6 @@ The datasets contain anonymized pet records with no personal information. All da
 - **Plotly**: Interactive dashboards
 - **Scikit-learn**: Machine learning insights
 - **Jupyter Notebook**: Interactive analysis environment
-
-## Quick Start
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/yourusername/AdoptablePetsDA.git
-cd AdoptablePetsDA
-```
-
-### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Launch Analysis Notebook
-```bash
-jupyter notebook notebooks/AdoptablePets_Analysis.ipynb
-```
-
-### 4. Run All Cells
-Execute all cells to see the complete professional analysis.
 
 ## Professional Features
 
@@ -139,12 +110,6 @@ This is a portfolio project demonstrating data analysis skills. Feel free to:
 
 This project is for educational and portfolio purposes. The data sources are publicly available.
 
-## Contact
 
-For questions about this analysis project, please open an issue on GitHub.
-
----
-
-**Note**: This project demonstrates professional data analysis skills suitable for Data Analyst positions. The modular architecture and comprehensive analysis showcase enterprise-level capabilities.
 
 
