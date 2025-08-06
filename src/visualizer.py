@@ -575,36 +575,25 @@ class Visualizer:
                 go.Bar(
                     x=fee_by_type.index,
                     y=fee_by_type['mean'],
-                    text=fee_by_type['mean'].round(2),
+                    text=fee_by_type['mean'].round(0),
                     textposition='auto',
-                    marker_color=['red', 'green', 'blue', 'orange', 'purple'][:min(len(fee_by_type), 5)]
+                    marker_color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'][:min(len(fee_by_type), 5)]
                 )
             ])
             
             fig_fee.update_layout(
                 title={
-                    'text': f"King County, WA Adoption Fees by Animal Type<br>Average Fee: ${avg_fee:.2f}",
+                    'text': f"King County Adoption Fees by Animal Type",
                     'x': 0.5,
                     'xanchor': 'center',
-                    'font': {'size': 14}
+                    'font': {'size': 12}
                 },
                 xaxis_title="Animal Type",
-                yaxis_title="Average Adoption Fee ($)",
-                height=500,
-                margin=dict(t=100, b=80, l=80, r=80),
-                annotations=[
-                    dict(
-                        text=f"Total Animals: {len(fee_df)} | Avg: ${avg_fee:.2f} | Range: ${fee_df['fee'].min()}-${fee_df['fee'].max()}",
-                        showarrow=False,
-                        xref="paper", yref="paper",
-                        x=0.5, y=0.95,
-                        xanchor='center', yanchor='top',
-                        bgcolor="rgba(255,255,255,0.9)",
-                        bordercolor="black",
-                        borderwidth=1,
-                        font=dict(size=10)
-                    )
-                ]
+                yaxis_title="Average Fee ($)",
+                height=400,
+                width=600,
+                margin=dict(t=60, b=50, l=50, r=50),
+                showlegend=False
             )
             
             return fig_fee
